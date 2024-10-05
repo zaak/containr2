@@ -9,7 +9,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Container = void 0;
+exports.defaultContainer = exports.Container = void 0;
 require("reflect-metadata");
 var Container = /** @class */ (function () {
     function Container() {
@@ -35,10 +35,18 @@ var Container = /** @class */ (function () {
     Container.prototype.resolveWithDependencies = function (token) {
         var _this = this;
         var paramTypes = Reflect.getMetadata("design:paramtypes", token) || [];
-        var dependencies = paramTypes.map(function (dep) { return _this.resolve(dep); });
-        var instance = new (token.bind.apply(token, __spreadArray([void 0], dependencies, false)))();
-        return instance;
+        // Resolve dependencies
+        var dependencies = paramTypes.map(function (dependency) {
+            var resolvedDep = _this.resolve(dependency);
+            if (!resolvedDep) {
+                throw new Error("No registration found for ".concat(dependency.name));
+            }
+            return resolvedDep;
+        });
+        return new (token.bind.apply(token, __spreadArray([void 0], dependencies, false)))();
     };
     return Container;
 }());
 exports.Container = Container;
+// Create a global default container
+exports.defaultContainer = new Container();

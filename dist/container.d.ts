@@ -7,3 +7,4 @@ export declare class Container {
     resolve<T>(token: Token<T>): T;
     resolveWithDependencies<T>(token: Constructor<T>): T;
 }
+export declare const defaultContainer: Container;

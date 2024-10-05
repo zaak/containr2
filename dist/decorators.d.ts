@@ -1,3 +1,4 @@
-import { Constructor, Container } from './container';
-export declare const container: Container;
-export declare function Injectable<T extends Constructor>(target: T): void;
+import { Container } from './container';
+type ClassConstructor<T> = new (...args: any[]) => T;
+export declare function Injectable<T>(containerOrConstructor?: Container | ClassConstructor<T>): any;
+export {};

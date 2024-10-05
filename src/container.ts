@@ -14,6 +14,7 @@ export class Container {
     // Resolve an instance by class or string ID
     resolve<T>(token: Token<T>): T {
         const entry = this.registry.get(token);
+
         if (!entry) {
             throw new Error(`No registration found for ${typeof token === 'string' ? token : token.name}`);
         }
@@ -28,8 +29,19 @@ export class Container {
     // Automatically resolve constructor dependencies and register them
     resolveWithDependencies<T>(token: Constructor<T>): T {
         const paramTypes: Constructor[] = Reflect.getMetadata("design:paramtypes", token) || [];
-        const dependencies = paramTypes.map(dep => this.resolve(dep));
-        const instance = new token(...dependencies);
-        return instance;
+
+        // Resolve dependencies
+        const dependencies = paramTypes.map(dependency => {
+            const resolvedDep = this.resolve(dependency);
+            if (!resolvedDep) {
+                throw new Error(`No registration found for ${dependency.name}`);
+            }
+            return resolvedDep;
+        });
+
+        return new token(...dependencies);
     }
 }
+
+// Create a global default container
+export const defaultContainer = new Container();
